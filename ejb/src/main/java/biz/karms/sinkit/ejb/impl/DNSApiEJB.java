@@ -226,7 +226,7 @@ public class DNSApiEJB implements DNSApi {
             clientIPAddressPaddedBigInt = cidrUtils.getStartIPBigIntegerString();
             probablyIsIPv6 = cidrUtils.isProbablyIsIPv6();
         } catch (UnknownHostException e) {
-            log.log(Level.SEVERE, "getSinkHole: clientIPAddress " + clientIPAddress + " in not a valid address.");
+            log.log(Level.FINE, "getSinkHole: clientIPAddress " + clientIPAddress + " in not a valid address.");
             return null;
         } finally {
             cidrUtils = null;
@@ -319,7 +319,7 @@ public class DNSApiEJB implements DNSApi {
             log.log(Level.WARNING, "getSinkHole: No match, no feed settings, we don't sinkhole.");
             return null;
         } else if ("S".equals(mode)) {
-            log.log(Level.WARNING, "getSinkHole: Sinkhole.");
+            log.log(Level.FINE, "getSinkHole: Sinkhole.");
             try {
                 log.log(Level.FINE, "getSinkHole: Calling coreService.logDNSEvent(EventLogAction.BLOCK,...");
                 logDNSEvent(EventLogAction.BLOCK, String.valueOf(customerId), clientIPAddress, null, (isFQDN) ? fqdnOrIp : null, (isFQDN) ? null : fqdnOrIp, unwrapDocumentIds(feedTypeMap.values()));
@@ -331,7 +331,7 @@ public class DNSApiEJB implements DNSApi {
             }
         } else if ("L".equals(mode)) {
             //Log it for customer
-            log.log(Level.WARNING, "getSinkHole: Log.");
+            log.log(Level.FINE, "getSinkHole: Log.");
             try {
                 logDNSEvent(EventLogAction.AUDIT, String.valueOf(customerId), clientIPAddress, null, (isFQDN) ? fqdnOrIp : null, (isFQDN) ? null : fqdnOrIp, unwrapDocumentIds(feedTypeMap.values()));
             } catch (ArchiveException e) {
@@ -342,7 +342,7 @@ public class DNSApiEJB implements DNSApi {
             }
         } else if ("D".equals(mode)) {
             //Log it for us
-            log.log(Level.WARNING, "getSinkHole: Log internally.");
+            log.log(Level.FINE, "getSinkHole: Log internally.");
             try {
                 logDNSEvent(EventLogAction.INTERNAL, String.valueOf(customerId), clientIPAddress, null, (isFQDN) ? fqdnOrIp : null, (isFQDN) ? null : fqdnOrIp, unwrapDocumentIds(feedTypeMap.values()));
             } catch (ArchiveException e) {
