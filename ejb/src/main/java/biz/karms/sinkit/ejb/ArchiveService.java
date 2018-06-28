@@ -2,6 +2,7 @@ package biz.karms.sinkit.ejb;
 
 import biz.karms.sinkit.eventlog.EventLogRecord;
 import biz.karms.sinkit.exception.ArchiveException;
+import biz.karms.sinkit.ioc.IoCAccuCheckerReport;
 import biz.karms.sinkit.ioc.IoCRecord;
 import biz.karms.sinkit.ioc.IoCVirusTotalReport;
 
@@ -30,6 +31,8 @@ public interface ArchiveService {
 
     List<IoCRecord> getActiveNotWhitelistedIoCs(int from, int size) throws ArchiveException;
 
+    List<IoCRecord> getMatchingEntries(String name, String value) throws ArchiveException;
+
     IoCRecord getIoCRecordById(String id) throws ArchiveException;
 
     IoCRecord getIoCRecordByUniqueRef(String uniqueRef) throws ArchiveException;
@@ -39,4 +42,6 @@ public interface ArchiveService {
     EventLogRecord getLogRecordWaitingForVTReport(int notAllowedFailedMinutes) throws ArchiveException;
 
     boolean setVirusTotalReportToIoCRecord(IoCRecord ioc, IoCVirusTotalReport[] reports) throws ArchiveException;
+
+    boolean setReportToIoCRecord(IoCAccuCheckerReport ioc, String documentId) throws ArchiveException;
 }

@@ -35,6 +35,7 @@ public class IoCRecord implements Indexable {
     @SerializedName("virus_total_reports")
     private IoCVirusTotalReport[] virusTotalReports;
     private HashMap<String, Integer> accuracy;
+    private HashMap<String,String> metadata;
 
     public IoCRecord() {
     }
@@ -151,6 +152,13 @@ public class IoCRecord implements Indexable {
         this.accuracy = accuracy;
     }
 
+    public HashMap<String, String> getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(HashMap<String, String> meta) {
+        this.metadata = meta;
+    }
     @Override
     public String toString() {
         return new Gson().toJson(this);
