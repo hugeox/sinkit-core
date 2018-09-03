@@ -1,23 +1,29 @@
 package biz.karms.sinkit.ejb.cache.pojo;
 
-import com.google.gson.Gson;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.HashMap;
 
 /**
  * @author Michal Karm Babacek
  */
+@Getter
+@Setter
 public class BlacklistedRecord implements Serializable {
 
-    private static final long serialVersionUID = -8738664627706834541L;
+    private static final long serialVersionUID = -333998912384541L;
 
     /**
      * Stored as an MD5 hash
      */
     private String blackListedDomainOrIP;
+
+    private BigInteger crc64Hash;
 
     private Calendar listed;
 
@@ -33,8 +39,10 @@ public class BlacklistedRecord implements Serializable {
      */
     private HashMap<String, HashMap<String, Integer>> accuracy;
 
-    public BlacklistedRecord(String blackListedDomainOrIP, Calendar listed, HashMap<String, ImmutablePair<String, String>> sources, HashMap<String, HashMap<String, Integer>> accuracy, Boolean presentOnWhiteList) {
+    public BlacklistedRecord(String blackListedDomainOrIP, BigInteger crc64Key, Calendar listed,
+                             HashMap<String, ImmutablePair<String, String>> sources, HashMap<String, HashMap<String, Integer>> accuracy, Boolean presentOnWhiteList) {
         this.blackListedDomainOrIP = blackListedDomainOrIP;
+        this.crc64Hash = crc64Key;
         this.listed = listed;
         this.sources = sources;
         this.accuracy = accuracy;
@@ -54,48 +62,15 @@ public class BlacklistedRecord implements Serializable {
         return blackListedDomainOrIP.hashCode();
     }
 
-    public String getBlackListedDomainOrIP() {
-        return blackListedDomainOrIP;
-    }
-
-    public void setBlackListedDomainOrIP(String blackListedDomainOrIP) {
-        this.blackListedDomainOrIP = blackListedDomainOrIP;
-    }
-
-    public Calendar getListed() {
-        return listed;
-    }
-
-    public void setListed(Calendar listed) {
-        this.listed = listed;
-    }
-
-    public HashMap<String, ImmutablePair<String, String>> getSources() {
-        return sources;
-    }
-
-    public void setSources(HashMap<String, ImmutablePair<String, String>> sources) {
-        this.sources = sources;
-    }
-
-    public HashMap<String, HashMap<String, Integer>> getAccuracy() {
-        return accuracy;
-    }
-
-    public void setAccuracy(HashMap<String, HashMap<String, Integer>> accuracy) {
-        this.accuracy = accuracy;
-    }
-
-    public Boolean isPresentOnWhiteList() {
-        return presentOnWhiteList;
-    }
-
-    public void setPresentOnWhiteList(Boolean presentOnWhiteList) {
-        this.presentOnWhiteList = presentOnWhiteList;
-    }
-
     @Override
     public String toString() {
-        return new Gson().toJson(this);
+        return "BlacklistedRecord{" +
+                "blackListedDomainOrIP='" + blackListedDomainOrIP + '\'' +
+                ", crc64Hash=" + crc64Hash +
+                ", listed=" + listed +
+                ", presentOnWhiteList=" + presentOnWhiteList +
+                ", sources=" + sources +
+                ", accuracy=" + accuracy +
+                '}';
     }
 }

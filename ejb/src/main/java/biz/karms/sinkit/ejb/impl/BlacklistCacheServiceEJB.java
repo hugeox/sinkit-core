@@ -1,5 +1,6 @@
 package biz.karms.sinkit.ejb.impl;
 
+import biz.karms.crc64java.CRC64;
 import biz.karms.sinkit.ejb.BlacklistCacheService;
 import biz.karms.sinkit.ejb.cache.annotations.SinkitCache;
 import biz.karms.sinkit.ejb.cache.annotations.SinkitCacheName;
@@ -15,6 +16,7 @@ import org.infinispan.client.hotrod.RemoteCache;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -48,12 +50,13 @@ public class BlacklistCacheServiceEJB implements BlacklistCacheService {
 
         log.log(Level.FINE, "PROCESSING IOC for Blacklistcache: " + new Gson().toJson(ioCRecord));
 
-        final String key = DigestUtils.md5Hex(ioCRecord.getSource().getId().getValue());
+        final String md5Key = DigestUtils.md5Hex(ioCRecord.getSource().getId().getValue());
+        final BigInteger crc64Key = CRC64.getInstance().crc64BigInteger(ioCRecord.getSource().getId().getValue().getBytes());
         try {
-            if (blacklistCache.containsKey(key)) {
-                final BlacklistedRecord blacklistedRecord = blacklistCache.withFlags(Flag.SKIP_CACHE_LOAD).get(key);
+            if (blacklistCache.containsKey(md5Key)) {
+                final BlacklistedRecord blacklistedRecord = blacklistCache.withFlags(Flag.SKIP_CACHE_LOAD).get(md5Key);
                 if (blacklistedRecord == null) {
-                    log.log(Level.SEVERE, "addToCache: blacklistedRecord allegedly exists in the Cache already under key " + key + ", but we failed to retrieve it.");
+                    log.log(Level.SEVERE, "addToCache: blacklistedRecord allegedly exists in the Cache already under key " + md5Key + ", but we failed to retrieve it.");
                     return false;
                 }
                 final HashMap<String, ImmutablePair<String, String>> feedToTypeUpdate = blacklistedRecord.getSources();
@@ -70,8 +73,9 @@ public class BlacklistCacheServiceEJB implements BlacklistCacheService {
                 blacklistedRecord.setAccuracy(accuracy);
                 blacklistedRecord.setListed(Calendar.getInstance());
                 blacklistedRecord.setPresentOnWhiteList(StringUtils.isNotBlank(ioCRecord.getWhitelistName()));
-                log.log(Level.FINE, "Replacing key [" + ioCRecord.getSource().getId().getValue() + "], hashed: " + key);
-                blacklistCache.replace(key, blacklistedRecord);
+                blacklistedRecord.setCrc64Hash(crc64Key);
+                log.log(Level.FINE, "Replacing key [" + ioCRecord.getSource().getId().getValue() + "], hashed: " + md5Key);
+                blacklistCache.replace(md5Key, blacklistedRecord);
             } else {
                 final HashMap<String, ImmutablePair<String, String>> feedToType = new HashMap<>();
                 if (ioCRecord.getFeed().getName() != null && ioCRecord.getClassification().getType() != null) {
@@ -83,11 +87,11 @@ public class BlacklistCacheServiceEJB implements BlacklistCacheService {
                 accuracy.putAll(ioCRecord.getAccuracy());
                 final HashMap<String, HashMap<String, Integer>> feedAccuracy = new HashMap<>();
                 feedAccuracy.put(ioCRecord.getFeed().getName(), accuracy);
-                final BlacklistedRecord blacklistedRecord = new BlacklistedRecord(key, Calendar.getInstance(), feedToType, feedAccuracy, StringUtils.isNotBlank(ioCRecord.getWhitelistName()));
+                final BlacklistedRecord blacklistedRecord = new BlacklistedRecord(md5Key, crc64Key, Calendar.getInstance(), feedToType, feedAccuracy, StringUtils.isNotBlank(ioCRecord.getWhitelistName()));
                 log.log(Level.FINE, "blacklistedRecord:" + new Gson().toJson(blacklistedRecord));
-                log.log(Level.FINE, "Putting new key [" + ioCRecord.getSource().getId().getValue() + "], hashed: " + key);
+                log.log(Level.FINE, "Putting new key [" + ioCRecord.getSource().getId().getValue() + "], hashed: " + md5Key);
                 log.log(Level.FINE, "New accuracy: " + new Gson().toJson(blacklistedRecord.getAccuracy()));
-                blacklistCache.put(key, blacklistedRecord);
+                blacklistCache.put(md5Key, blacklistedRecord);
             }
         } catch (Exception e) {
             log.log(Level.SEVERE, "addToCache", e);

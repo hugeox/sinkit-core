@@ -233,12 +233,12 @@ public class CoreServiceEJB implements CoreService {
         final IoCSourceId sid = IoCSourceIdBuilder.build(whiteIoC);
         whiteIoC.getSource().setId(sid);
         // TODO: remove when ttl is received from IntelMQ
-        whiteIoC.getSource().setTTL(whitelistValidSeconds);
+        whiteIoC.getSource().setTtl(whitelistValidSeconds);
         WhitelistedRecord white = whitelistCacheService.get(whiteIoC.getSource().getId().getValue());
         boolean putToCacheBefore = true;
         if (white != null) {
             final Calendar expiresAt = Calendar.getInstance();
-            expiresAt.add(Calendar.SECOND, whiteIoC.getSource().getTTL().intValue());
+            expiresAt.add(Calendar.SECOND, whiteIoC.getSource().getTtl().intValue());
             // if old whitelist record needs update
             if (expiresAt.after(white.getExpiresAt())) {
                 // if old whitelist record was completely processed during last run just update it and quit the process
