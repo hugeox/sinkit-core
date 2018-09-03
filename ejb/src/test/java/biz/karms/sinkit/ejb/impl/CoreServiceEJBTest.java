@@ -4,7 +4,12 @@ import biz.karms.sinkit.ejb.ArchiveService;
 import biz.karms.sinkit.ejb.BlacklistCacheService;
 import biz.karms.sinkit.ejb.WhitelistCacheService;
 import biz.karms.sinkit.ejb.cache.pojo.WhitelistedRecord;
-import biz.karms.sinkit.ioc.*;
+import biz.karms.sinkit.ioc.IoCAccuCheckerReport;
+import biz.karms.sinkit.ioc.IoCFeed;
+import biz.karms.sinkit.ioc.IoCRecord;
+import biz.karms.sinkit.ioc.IoCSource;
+import biz.karms.sinkit.ioc.IoCSourceId;
+import biz.karms.sinkit.ioc.IoCSourceIdType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -43,14 +48,15 @@ public class CoreServiceEJBTest {
     @InjectMocks
     private CoreServiceEJB coreService;
 
-    /*
-    Updates accuracies for 2 entries with the same fqdn
+    /**
+     *Tests the update of accuracy with a report from AccuChecker
+     * @throws Exception
      */
     @Test
-    public void updateWithAccuCheckerReportExistsTest() throws Exception {
+    public void updateWithAccuCheckerReportTest() throws Exception {
 
         //prepare
-        IoCRecord ioc1 = getIoCForWhitelist(null, "mal.com", "whalebone", true);
+        IoCRecord ioc1 = getIoCForWhitelist(null, "mal.com", "OneFeed", true);
         ioc1.setDocumentId("1");
         //give this ioc a feed accuracy
         HashMap<String,Integer> feed_accuracy_1 = new HashMap<>();
@@ -67,10 +73,10 @@ public class CoreServiceEJBTest {
         //accuchecker report setup
         IoCRecord report = getIoCForWhitelist(null, "mal.com",null,true);
         HashMap<String,Integer> accuracy = new HashMap<>();
-        accuracy.put("virustotal", 20);
+        accuracy.put("SomeAccuracyProvider", 20);
         report.setAccuracy(accuracy);
         HashMap<String,String> metadata = new HashMap<>();
-        metadata.put("virustotal","virustotal has no metadata");
+        metadata.put("SomeAccuracyProvider","SomeAccuracyProvider has no metadata");
         report.setMetadata(metadata);
         IoCAccuCheckerReport accu_report = new IoCAccuCheckerReport(report);
         List<IoCRecord> iocs = new ArrayList<IoCRecord>();
@@ -92,9 +98,9 @@ public class CoreServiceEJBTest {
         verify(blacklistCacheService).addToCache(iocs.get(0));
         verify(blacklistCacheService).addToCache(iocs.get(1));
         assertEquals(new Integer(80),iocs.get(0).getAccuracy().get("feed"));
-        assertEquals(new Integer(20),iocs.get(0).getAccuracy().get("virustotal"));
+        assertEquals(new Integer(20),iocs.get(0).getAccuracy().get("SomeAccuracyProvider"));
         assertEquals(new Integer(50),iocs.get(1).getAccuracy().get("feed"));
-        assertEquals(new Integer(20),iocs.get(1).getAccuracy().get("virustotal"));
+        assertEquals(new Integer(20),iocs.get(1).getAccuracy().get("SomeAccuracyProvider"));
         verifyNoMoreInteractions(archiveService);
         verifyNoMoreInteractions(blacklistCacheService);
     }
