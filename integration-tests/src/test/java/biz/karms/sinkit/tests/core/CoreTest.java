@@ -58,7 +58,7 @@ public class CoreTest extends Arquillian {
     @EJB
     private DNSApiLoggingEJB dnsApiLoggingEJB;
 
-    @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 12)
+    @Test(enabled = true, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 12)
     public void deduplicationTest() throws Exception {
         Calendar c = Calendar.getInstance();
         c.set(Calendar.MILLISECOND, 0);
@@ -83,7 +83,7 @@ public class CoreTest extends Arquillian {
         assertEquals(iocIndexed.getSeen().getFirst(), firstObservation, "Expected seen.first: " + firstObservation + ", but got: " + iocIndexed.getSeen().getFirst());
     }
 
-    @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 13, expectedExceptions = TooOldIoCException.class)
+    @Test(enabled = true, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 13, expectedExceptions = TooOldIoCException.class)
     public void tooOldSourceTimeTest() throws Exception {
         Calendar c = Calendar.getInstance();
         c.set(Calendar.MILLISECOND, 0);
@@ -95,7 +95,7 @@ public class CoreTest extends Arquillian {
         coreService.processIoCRecord(ioc);
     }
 
-    @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 14, expectedExceptions = TooOldIoCException.class)
+    @Test(enabled = true, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 14, expectedExceptions = TooOldIoCException.class)
     public void tooOldObservationTimeTest() throws Exception {
         Calendar c = Calendar.getInstance();
         c.set(Calendar.MILLISECOND, 0);
@@ -105,7 +105,7 @@ public class CoreTest extends Arquillian {
         coreService.processIoCRecord(ioc);
     }
 
-    @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 15)
+    @Test(enabled = true, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 15)
     public void goodTimeTest() throws Exception {
         Calendar c = Calendar.getInstance();
         c.set(Calendar.MILLISECOND, 0);
@@ -131,7 +131,7 @@ public class CoreTest extends Arquillian {
         assertTrue(receivedByCore.before(observation.getTime().getReceivedByCore()), "Expected time.receivedByCore to be after " + receivedByCore + ", but was: " + observation.getTime().getReceivedByCore());
     }
 
-    @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 16)
+    @Test(enabled = true, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 16)
     public void deactivationTest() throws Exception {
         Calendar c = Calendar.getInstance();
         Date deactivationTime = c.getTime();

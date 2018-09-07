@@ -327,7 +327,7 @@ public class WebApiEJB implements WebApi {
                 return null;
             }
         }
-        return allDNSSetting.length + " RULES PROCESSED " + ruleCache.size() + " PRESENT";
+        return allDNSSetting.length + " RULES PROCESSED " + ruleCache.size() + " PRESENT" ;
     }
 
     /**
@@ -471,7 +471,7 @@ public class WebApiEJB implements WebApi {
             }
             //}
         }
-        return customListsElementCounter + " CUSTOM LISTS ELEMENTS PROCESSED, " + customListsCache.size() + " PRESENT";
+        return customListsElementCounter + " CUSTOM LISTS ELEMENTS PROCESSED, " + customListsCache.size() + " PRESENT"+ customListsCache.keySet().toString();
     }
 
     /**

@@ -97,7 +97,7 @@ public class ApiIntegrationTest extends Arquillian {
         assertTrue(responseBody.contains(expected), "Expected " + expected + ", but got: " + responseBody);
     }
 
-    @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 2)
+    @Test(enabled = true, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 2)
     @OperateOnDeployment("ear")
     @RunAsClient
     public void putCustomListsTest(@ArquillianResource URL context) throws Exception {
@@ -124,14 +124,17 @@ public class ApiIntegrationTest extends Arquillian {
         assertTrue(responseBody.contains(expected), "Expected: " + expected + ", but got: " + responseBody);
     }
 
-    @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 3)
+    @Test(enabled = true, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 3)
     public void addIoCsTest() throws Exception {
         IoCRecord ioCRecord = IoCFactory.getIoCRecord("hosted", "blacklist", "myDocumentId", "feed2", "feed2", "seznam.cz", IoCSourceIdType.FQDN, "seznam.cz", null, "seznam.cz");
         assertTrue(blacklistCacheService.dropTheWholeCache(), "Dropping the whole cache failed.");
+        LOGGER.info("We have some frking shit" + ioCRecord.getClassification().getType());
         assertTrue(blacklistCacheService.addToCache(ioCRecord), "Adding a new IoC to a presumably empty cache failed.");
     }
 
 
+    //stats webApi.getStats now returns much more than that
+    //TODO:Fix for this to reflect that
     @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 4)
     @OperateOnDeployment("ear")
     @RunAsClient
@@ -149,7 +152,7 @@ public class ApiIntegrationTest extends Arquillian {
     }
 
 
-    @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 5)
+    @Test(enabled = true, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 5)
     @OperateOnDeployment("ear")
     @RunAsClient
     public void getIoCsTest(@ArquillianResource URL context) throws Exception {
@@ -166,7 +169,7 @@ public class ApiIntegrationTest extends Arquillian {
     }
 
 
-    @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 6)
+    @Test(enabled = true, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 6)
     @OperateOnDeployment("ear")
     @RunAsClient
     public void getIoCTest(@ArquillianResource URL context) throws Exception {
@@ -180,11 +183,12 @@ public class ApiIntegrationTest extends Arquillian {
         LOGGER.info("getIoCTest Response:" + responseBody);
         String expected = "\"black_listed_domain_or_i_p\":\"aed14ad7ed6c543f818a4cfe89cb8f20\""; // md5 of seznam.cz
         assertTrue(responseBody.contains(expected), "IoC response should have contained " + expected + ", but got:" + responseBody);
-        expected = "\"sources\":{\"feed2\":{\"a\":\"blacklist\",\"b\":\"myDocumentId\"}}";
+        expected = "\"sources\":{\"feed2\":{\"left\":\"blacklist\",\"right\":\"myDocumentId\"}}";
         assertTrue(responseBody.contains(expected), "IoC should have contained " + expected + ", but got: " + responseBody);
     }
 
 
+    //TODO: understand sinkhole
     @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 7)
     @OperateOnDeployment("ear")
     @RunAsClient
@@ -208,15 +212,29 @@ public class ApiIntegrationTest extends Arquillian {
      * @throws Exception
      */
 
-    @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 8)
+    @Test(enabled = true, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 8)
     @OperateOnDeployment("ear")
     @RunAsClient
     public void cleanElasticTest(@ArquillianResource URL context) throws Exception {
         WebClient webClient = new WebClient();
+        //REST port is not SINKIT_ELASTIC_PORT
         WebRequest requestSettings = new WebRequest(
-                new URL("http://" + System.getenv("SINKIT_ELASTIC_HOST") + ":" + System.getenv("SINKIT_ELASTIC_PORT") +
+                new URL("http://" + System.getenv("SINKIT_ELASTIC_HOST") + ":" + "9200" +
                         "/" + ArchiveServiceEJB.ELASTIC_IOC_INDEX + "/"), HttpMethod.DELETE);
+
         Page page;
+        try {
+            page = webClient.getPage(requestSettings);
+            assertEquals(HttpURLConnection.HTTP_OK, page.getWebResponse().getStatusCode());
+        } catch (FailingHttpStatusCodeException ex) {
+            //NO-OP index does not exist yet, but it's ok
+        }
+        //RECREATING INDEX
+         requestSettings = new WebRequest(
+                new URL("http://" + System.getenv("SINKIT_ELASTIC_HOST") + ":" + "9200" +
+                        "/" + ArchiveServiceEJB.ELASTIC_IOC_INDEX + "/"), HttpMethod.PUT);
+
+
         try {
             page = webClient.getPage(requestSettings);
             assertEquals(HttpURLConnection.HTTP_OK, page.getWebResponse().getStatusCode());
@@ -225,8 +243,7 @@ public class ApiIntegrationTest extends Arquillian {
         }
     }
 
-
-    @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 9)
+    @Test(enabled = true, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 9)
     @OperateOnDeployment("ear")
     @RunAsClient
     public void receiveIoCTest(@ArquillianResource URL context) throws Exception {
@@ -281,7 +298,7 @@ public class ApiIntegrationTest extends Arquillian {
     }
 
 
-    @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 10)
+    @Test(enabled = true, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 10)
     public void iocInElasticTest() throws Exception {
 
         String feed = "integrationTest";
@@ -305,7 +322,7 @@ public class ApiIntegrationTest extends Arquillian {
     }
 
 
-    @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 11)
+    @Test(enabled = true, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 11)
     @OperateOnDeployment("ear")
     @RunAsClient
     public void iocInCacheTest(@ArquillianResource URL context) throws Exception {
@@ -319,7 +336,7 @@ public class ApiIntegrationTest extends Arquillian {
         LOGGER.info("iocInCacheTest Response:" + responseBody);
         String expected = "\"black_listed_domain_or_i_p\":\"926dab5157943daed27851a34f30b701\"";  // md5 of phishing.ru
         assertTrue(responseBody.contains(expected), "IoC response should have contained " + expected + ", but got:" + responseBody);
-        expected = "\"sources\":{\"integrationTest\":{\"a\":\"phishing\",\"b\":\"";
+        expected = "\"sources\":{\"integrationTest\":{\"left\":\"phishing\",\"right\":\"";
         assertTrue(responseBody.contains(expected), "IoC should have contained " + expected + ", but got: " + responseBody);
     }
 
