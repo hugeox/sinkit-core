@@ -190,7 +190,7 @@ public class CoreTest extends Arquillian {
         }
     }
 
-    @Test(enabled = true, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 18)
+    @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 18)
     public void dnsEventLogTestPrepare() throws Exception {
         String iocId1 = "d056ec334e3c046f0d7fdde6f3d02c8b";
         String iocId2 = "1c9b683e445fcb631cd86b06c882dd07";
