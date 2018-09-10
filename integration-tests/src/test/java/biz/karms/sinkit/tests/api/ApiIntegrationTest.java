@@ -29,6 +29,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import static org.testng.Assert.assertEquals;
@@ -188,8 +189,7 @@ public class ApiIntegrationTest extends Arquillian {
     }
 
 
-    //TODO: understand sinkhole
-    @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 7)
+    @Test(enabled = true, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 7)
     @OperateOnDeployment("ear")
     @RunAsClient
     public void getSinkHoleTest(@ArquillianResource URL context) throws Exception {
@@ -212,14 +212,16 @@ public class ApiIntegrationTest extends Arquillian {
      * @throws Exception
      */
 
-    @Test(enabled = true, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 8)
+    @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 8)
     @OperateOnDeployment("ear")
     @RunAsClient
     public void cleanElasticTest(@ArquillianResource URL context) throws Exception {
+
+        LOGGER.info("Cleaning elastic");
         WebClient webClient = new WebClient();
         //REST port is not SINKIT_ELASTIC_PORT
         WebRequest requestSettings = new WebRequest(
-                new URL("http://" + System.getenv("SINKIT_ELASTIC_HOST") + ":" + "9200" +
+                new URL("http://" + System.getenv("SINKIT_ELASTIC_HOST") + ":" + System.getenv("SINKIT_ELASTIC_REST_PORT")  +
                         "/" + ArchiveServiceEJB.ELASTIC_IOC_INDEX + "/"), HttpMethod.DELETE);
 
         Page page;
@@ -229,19 +231,41 @@ public class ApiIntegrationTest extends Arquillian {
         } catch (FailingHttpStatusCodeException ex) {
             //NO-OP index does not exist yet, but it's ok
         }
-        //RECREATING INDEX
+
+        TimeUnit.SECONDS.sleep(3);
+
+
+        //RECREATING IOC_INDEX
+        WebClient webClient2 = new WebClient();
          requestSettings = new WebRequest(
-                new URL("http://" + System.getenv("SINKIT_ELASTIC_HOST") + ":" + "9200" +
+                new URL("http://" + System.getenv("SINKIT_ELASTIC_HOST") + ":" + System.getenv("SINKIT_ELASTIC_REST_PORT")  +
                         "/" + ArchiveServiceEJB.ELASTIC_IOC_INDEX + "/"), HttpMethod.PUT);
-
-
+         Page page2;
         try {
-            page = webClient.getPage(requestSettings);
-            assertEquals(HttpURLConnection.HTTP_OK, page.getWebResponse().getStatusCode());
+            page2 = webClient2.getPage(requestSettings);
+            assertEquals(HttpURLConnection.HTTP_OK, page2.getWebResponse().getStatusCode());
         } catch (FailingHttpStatusCodeException ex) {
-            //NO-OP index does not exist yet, but it's ok
+            LOGGER.info("Creating ioc elastic" + ex.getStatusMessage());
+        }
+
+        TimeUnit.SECONDS.sleep(3);
+
+        //RECREATING LOG INDEX
+        String index = IoCFactory.getLogIndex();
+        WebClient webClient3 = new WebClient();
+        requestSettings = new WebRequest(
+                new URL("http://" + System.getenv("SINKIT_ELASTIC_HOST") + ":" + System.getenv("SINKIT_ELASTIC_REST_PORT")  +
+                        "/" + index + "/"), HttpMethod.PUT);
+        Page page3;
+        try {
+            page3 = webClient3.getPage(requestSettings);
+            assertEquals(HttpURLConnection.HTTP_OK, page3.getWebResponse().getStatusCode());
+        } catch (FailingHttpStatusCodeException ex) {
+            LOGGER.info("Creating log elastic" + ex.getStatusMessage());
         }
     }
+
+
 
     @Test(enabled = true, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 9)
     @OperateOnDeployment("ear")
@@ -249,6 +273,7 @@ public class ApiIntegrationTest extends Arquillian {
     public void receiveIoCTest(@ArquillianResource URL context) throws Exception {
         WebClient webClient = new WebClient();
         WebRequest requestSettings = new WebRequest(new URL(context + "rest/blacklist/ioc/"), HttpMethod.POST);
+        LOGGER.severe("url context is :" + context );
         requestSettings.setAdditionalHeader("Content-Type", "application/json");
         requestSettings.setAdditionalHeader("X-sinkit-token", TOKEN);
 
@@ -341,7 +366,7 @@ public class ApiIntegrationTest extends Arquillian {
     }
 
 
-    @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 20)
+    @Test(enabled = true, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 20)
     @OperateOnDeployment("ear")
     @RunAsClient
     public void endToEndTest(@ArquillianResource URL context) throws Exception {
@@ -369,7 +394,8 @@ public class ApiIntegrationTest extends Arquillian {
         requestSettingsIoC.setRequestBody("{\"feed\":{\"name\":\"some-intelmq-feed-to-sink\",\"url\":\"http://example.com/feed.txt\"},\"classification\":{\"type\": \"phishing\",\"taxonomy\": \"Fraud\"},\"raw\":\"aHwwwwfdfBmODQ2N244iNGZiNS8=\",\"source\":{\"fqdn\":\"evil-domain-that-is-to-be-listed.cz\",\"bgp_prefix\":\"some_prefix\",\"asn\":\"3355556\",\"asn_name\":\"any_name\",\"geolocation\":{\"cc\":\"RU\",\"city\":\"City\",\"latitude\":\"85.12645\",\"longitude\":\"-12.9788\"}},\"time\":{\"observation\":\"" + observation + "\"},\"protocol\":{\"application\":\"ssh\"},\"description\":{\"text\":\"description\"}}");
         Page pageIoC = webClient.getPage(requestSettingsIoC);
         assertEquals(HttpURLConnection.HTTP_OK, pageIoC.getWebResponse().getStatusCode());
-        String responseBodyIoC = pageIoC.getWebResponse().getContentAsString();
+        String responseBodyIoC
+                = pageIoC.getWebResponse().getContentAsString();
         LOGGER.info("endToEndIoC Response:" + responseBodyIoC);
         assertTrue(responseBodyIoC.contains("\"document_id\":\"2350e3c4042fbb9678b7b94269e91e7b\""));
         assertTrue(responseBodyIoC.contains("\"feed\":{\"url\":\"http://example.com/feed.txt\",\"name\":\"some-intelmq-feed-to-sink\"},\"description\":{\"text\":\"description\"},\"classification\":{\"type\":\"phishing\",\"taxonomy\":\"Fraud\"},\"protocol\":{\"application\":\"ssh\"},\"raw\":\"aHwwwwfdfBmODQ2N244iNGZiNS8\\u003d\",\"source\":{\"id\":{\"value\":\"evil-domain-that-is-to-be-listed.cz\",\"type\":\"fqdn\"},\"fqdn\":\"evil-domain-that-is-to-be-listed.cz\",\"asn\":3355556,\"asn_name\":\"any_name\",\"geolocation\":{\"cc\":\"RU\",\"city\":\"City\",\"latitude\":85.12645,\"longitude\":-12.9788},\"bgp_prefix\":\"some_prefix\"}"));
@@ -387,7 +413,7 @@ public class ApiIntegrationTest extends Arquillian {
         String index = IoCFactory.getLogIndex();
 
         WebRequest requestSettingsLog = new WebRequest(new URL(
-                "http://" + System.getenv("SINKIT_ELASTIC_HOST") + ":" + System.getenv("SINKIT_ELASTIC_PORT") + "/" +
+                "http://" + System.getenv("SINKIT_ELASTIC_HOST") + ":" + System.getenv("SINKIT_ELASTIC_REST_PORT") + "/" +
                         index + "/" + ArchiveServiceEJB.ELASTIC_LOG_TYPE + "/_search"
         ), HttpMethod.POST);
         requestSettingsLog.setAdditionalHeader("Content-Type", "application/json");
@@ -417,7 +443,7 @@ public class ApiIntegrationTest extends Arquillian {
         JsonArray hits = jsonParser.parse(responseBodyLog).getAsJsonObject()
                 .get("hits").getAsJsonObject()
                 .get("hits").getAsJsonArray();
-        assertTrue(hits.size() == 1);
+        assertEquals(hits.size(),1);
 
         JsonObject logRecord = hits.get(0).getAsJsonObject().get("_source").getAsJsonObject();
         assertEquals(logRecord.get("action").getAsString(), "block", "Expected LogRecord.action: block, but got: " + logRecord.get("action").getAsString());

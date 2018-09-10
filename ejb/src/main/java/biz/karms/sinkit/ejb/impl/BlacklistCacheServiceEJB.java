@@ -81,7 +81,6 @@ public class BlacklistCacheServiceEJB implements BlacklistCacheService {
                 blacklistedRecord.setPresentOnWhiteList(StringUtils.isNotBlank(ioCRecord.getWhitelistName()));
                 blacklistedRecord.setCrc64Hash(crc64Key);
                 log.log(Level.FINE, "Replacing key [" + ioCRecord.getSource().getId().getValue() + "], hashed: " + md5Key);
-                log.log(Level.INFO, "Cache contains :: " + new Gson().toJson(blacklistedRecord));
                 blacklistCache.replace(md5Key, blacklistedRecord);
             } else {
                 final HashMap<String, ImmutablePair<String, String>> feedToType = new HashMap<>();

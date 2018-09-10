@@ -179,7 +179,7 @@ public class CoreTest extends Arquillian {
 
         WebClient webClient = new WebClient();
         WebRequest requestSettings = new WebRequest(
-                new URL("http://" + System.getenv("SINKIT_ELASTIC_HOST") + ":" + System.getenv("SINKIT_ELASTIC_PORT") +
+                new URL("http://" + System.getenv("SINKIT_ELASTIC_HOST") + ":" + System.getenv("SINKIT_ELASTIC_REST_PORT") +
                         "/" + index + "/"), HttpMethod.DELETE);
         Page page;
         try {
@@ -190,7 +190,7 @@ public class CoreTest extends Arquillian {
         }
     }
 
-    @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 18)
+    @Test(enabled = true, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, priority = 18)
     public void dnsEventLogTestPrepare() throws Exception {
         String iocId1 = "d056ec334e3c046f0d7fdde6f3d02c8b";
         String iocId2 = "1c9b683e445fcb631cd86b06c882dd07";
@@ -229,7 +229,7 @@ public class CoreTest extends Arquillian {
         WebClient webClient = new WebClient();
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
         WebRequest requestSettings = new WebRequest(new URL(
-                "http://" + System.getenv("SINKIT_ELASTIC_HOST") + ":" + System.getenv("SINKIT_ELASTIC_PORT") + "/" +
+                "http://" + System.getenv("SINKIT_ELASTIC_HOST") + ":" + System.getenv("SINKIT_ELASTIC_REST_PORT") + "/" +
                         index + "/" /*+ ArchiveServiceEJB.ELASTIC_LOG_TYPE*/ + "/_search"
         ), HttpMethod.POST);
         requestSettings.setAdditionalHeader("Content-Type", "application/json");

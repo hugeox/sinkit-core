@@ -36,6 +36,7 @@ public class ElasticClientProvider {
                                         .put("cluster.name", System.getenv("SINKIT_ELASTIC_CLUSTER"))
                                         .put("discovery.zen.ping.multicast.enabled", true)
                                         .put("discovery.zen.ping.timeout", "3s")
+                                        .put("action.auto_create_index",false)
                                         .put("discovery.zen.minimum_master_nodes", 1)
                         )
                         .client(true)
