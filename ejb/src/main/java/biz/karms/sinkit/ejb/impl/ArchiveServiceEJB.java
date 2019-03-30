@@ -178,7 +178,7 @@ public class ArchiveServiceEJB implements ArchiveService {
 
     @Override
     public IoCRecord getActiveIoCRecordById(final String id) throws ArchiveException {
-        //log.log(Level.WARNING, "getActiveIoCRecordById: id: "+id+", ELASTIC_IOC_INDEX: "+ELASTIC_IOC_INDEX+", ELASTIC_IOC_TYPE: "+ELASTIC_IOC_TYPE);
+        //log.log(Level.WARNING, "getActiveIoCRecordById: id: "+id+", ELASTIC_IOC_INDEX: "+ELASTIC_IOC_INDEX_ACTIVE+", ELASTIC_IOC_TYPE: "+ELASTIC_IOC_TYPE);
         return elasticService.getDocumentById(id, ELASTIC_IOC_INDEX_ACTIVE, ELASTIC_IOC_TYPE, IoCRecord.class);
     }
 

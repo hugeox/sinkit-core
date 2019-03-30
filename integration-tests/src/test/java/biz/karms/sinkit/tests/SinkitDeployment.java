@@ -2,6 +2,7 @@ package biz.karms.sinkit.tests;
 
 import biz.karms.sinkit.tests.api.ApiIntegrationTest;
 import biz.karms.sinkit.tests.core.CoreTest;
+import biz.karms.sinkit.tests.redis.RedisIntegrationTest;
 import biz.karms.sinkit.tests.util.IoCFactory;
 import biz.karms.sinkit.tests.whitelist.WhitelistCacheServiceTest;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
@@ -23,19 +24,24 @@ import java.io.File;
  */
 @ArquillianSuiteDeployment
 public class SinkitDeployment {
-    @Deployment(name = "ear", testable = true, managed = true)
+    @Deployment(name = "ear", testable = true)
     public static Archive<?> createTestArchive() {
         EnterpriseArchive ear = ShrinkWrap.create(ZipImporter.class, "sinkit-ear.ear").importFrom(new File("../ear/target/sinkit-ear.ear")).as(EnterpriseArchive.class);
         ear.getAsType(JavaArchive.class, "sinkit-ejb.jar")
                 .addClass(CoreTest.class)
                 .addClass(ApiIntegrationTest.class)
+                .addClass(RedisIntegrationTest.class)
                 .addClass(WhitelistCacheServiceTest.class)
                 .addClass(FailingHttpStatusCodeException.class)
                 .addClass(IoCFactory.class)
                 .addClass(com.gargoylesoftware.htmlunit.HttpMethod.class)
                 .addClass(com.gargoylesoftware.htmlunit.Page.class)
                 .addClass(com.gargoylesoftware.htmlunit.WebClient.class)
-                .addClass(com.gargoylesoftware.htmlunit.WebRequest.class);
+                .addClass(com.gargoylesoftware.htmlunit.WebRequest.class)
+                .addClass(redis.clients.jedis.Jedis.class)
+                .addClass(biz.karms.sinkit.tests.util.FileUtils.class)
+                .addClass(org.hamcrest.core.Is.class)
+                .addClass(org.hamcrest.core.IsNull.class);
         //.addClass(DeploymentException.class);
         return ear;
     }

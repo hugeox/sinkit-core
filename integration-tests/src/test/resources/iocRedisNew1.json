@@ -1,0 +1,32 @@
+{
+  "feed": {
+    "name": "redisTest",
+    "url": "http://www.someFeed.com/feed.txt"
+  },
+  "classification": {
+    "type": "phishing",
+    "taxonomy": "Fraud"
+  },
+  "raw": "someRaw",
+  "source": {
+    "fqdn": "fishingredis.ru",
+    "bgp_prefix": "some_pre",
+    "asn": "12",
+    "asn_name": "some_asn_name",
+    "geolocation": {
+      "cc": "RU",
+      "city": "City",
+      "latitude": "85.12645",
+      "longitude": "-12.9788"
+    }
+  },
+  "time": {
+    "observation": "TIME_OBSERVATION"
+  },
+  "protocol": {
+    "application": "ssh"
+  },
+  "description": {
+    "text": "description"
+  }
+}

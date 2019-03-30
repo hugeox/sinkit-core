@@ -32,6 +32,13 @@ jobs:
           SINKIT_WHITELIST_VALID_HOURS: 1
           SINKIT_MGMT_USER: user
           SINKIT_MGMT_PASS: user
+          SINKIT_REDIS_INTERVAL_SECONDS: 1
+          SINKIT_REDIS_HOST: 127.0.0.1
+          SINKIT_REDIS_PORT: 6379
+          SINKIT_REDIS_POPPER_ENABLE: True
+          SINKIT_REDIS_QUEUE: "iocs"
+          SINKIT_REDIS_PROCESSING_QUEUE: "processing"
+
 
 # ELASTIC
 # Image repo: https://github.com/hugeox/elastic-docker
@@ -60,6 +67,9 @@ jobs:
           INFINISPAN_MX_RAM: "2g"
           INFINISPAN_NIC: "lo"
           INFINISPAN_GMS_MAX_JOIN_ATTEMPTS: "1"
+
+#REDIS DB
+      - image: circleci/redis:4.0.9
     
     steps:
       - checkout

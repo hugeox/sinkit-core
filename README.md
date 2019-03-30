@@ -6,9 +6,11 @@
 ## Expected env vars
 
 see $PROJECT_HOME/.circleci/config.yml
+Note that SINKIT_REDIS_INTERVAL_SECONDS is used to set second in schedulerExpressions to "*/"+SINKIT_REDIS_INTERVAL_SECONDS - thus values that do not divide 60 will result in the intervals between timer triggerings being equal to SINKIT_REDIS_INTERVAL_SECONDS
+(i. e. for SINKIT_REDIS_INTERVAL_SECONDS = 11, the timer gets triggered at seconds 0,11,22,33,44,55, 0 again)
 
-## Run ISPN, Elastic
-They should run on ports 9200, 9300 (Elastic) and 11322(ISPN)
+## Run ISPN, Elastic, Redis
+They should run on ports 9200, 9300 (Elastic), 11322(ISPN) and 6379(redis)
 
 ## Initialize Elastic
 
